@@ -35,7 +35,8 @@ class LSTM(nn.Module):
 
     def __init__(self, rnn_type, embed_size, rnn_size, optimizer, inputVocabolary, 
     checkpoint = "LSTM-checkpoint.pth",
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")):
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"), 
+    saveInterval = 20):
         # Call parent constructor
         super().__init__()
         'We use the embedding layer because the input dataset will be a vocabulary of many words.'
@@ -45,6 +46,7 @@ class LSTM(nn.Module):
         self.checkpoint = checkpoint
         self.optimizer = optimizer
         self.device = device
+        self.saveInterval = saveInterval
 
         
     def forward(self, x):
@@ -127,7 +129,7 @@ class LSTM(nn.Module):
             avg_test_accuracy = epoch_accuracy_sum["test"]/epoch_accuracy_cnt["test"]
             print(f"Epoch: {epoch+1}, TL={avg_train_loss:.4f}, TA={avg_train_accuracy:.4f}, ŦL={avg_test_loss:.4f}, ŦA={avg_test_accuracy:.4f}")
 
-            if epoch % 10 == 0:
+            if epoch % self.saveInterval == 0:
                 state_dict = self.state_dict()
                 for k,v in state_dict.items():
                     state_dict[k] = v.cpu()

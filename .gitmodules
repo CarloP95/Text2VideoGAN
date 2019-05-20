@@ -1,0 +1,3 @@
+[submodule "mocogan"]
+	path = mocogan
+	url = https://github.com/CarloP95/mocogan.git
