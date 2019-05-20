@@ -1,3 +1,6 @@
 [submodule "mocogan"]
 	path = mocogan
 	url = https://github.com/CarloP95/mocogan.git
+[submodule "caffe"]
+	path = caffe
+	url = https://github.com/CarloP95/caffe.git
