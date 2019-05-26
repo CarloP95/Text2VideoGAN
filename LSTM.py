@@ -30,7 +30,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 from torch.utils.data import DataLoader
-
+#Test a little comment to test if cloning is correct
 class LSTM(nn.Module):
 
     def __init__(self, rnn_type, embed_size, rnn_size, optimizer, inputVocabolary, 
