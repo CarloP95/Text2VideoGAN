@@ -4,3 +4,6 @@
 [submodule "caffe"]
 	path = caffe
 	url = https://github.com/CarloP95/caffe.git
+[submodule "torch_videovision"]
+	path = torch_videovision
+	url = https://github.com/CarloP95/torch_videovision
