@@ -45,11 +45,12 @@ class TextLoader(Dataset):
             
     """
 
-    def __init__(self, path):
+    def __init__(self, path, item_length = 100):
         super(TextLoader, self).__init__()
         self.path           = path
         self.actions        = []
         self.samples        = []
+        self.item_length    = item_length
 
         try:
             with open(path, 'r+') as fileDataset:
@@ -72,6 +73,8 @@ class TextLoader(Dataset):
 
 
     def __getitem__(self, index):
+        print(self.samples[index])
+        raise NotImplementedError('Need to implement the padding and converting into tensor.')
         return self.samples[index]
 
 

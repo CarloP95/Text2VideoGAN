@@ -29,10 +29,8 @@ import torch.nn as nn
 
 class LSTM(nn.Module):
 
-    def __init__(self, rnn_type, embed_size, rnn_size, optimizer, inputVocabolary, numClasses = 101,
-                    checkpoint = "LSTM-checkpoint.pth",
-                    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"), 
-                    saveInterval = 20):
+    def __init__(self, rnn_type, rnn_size, embed_size, inputVocabolary, numClasses = 101,
+                    checkpoint = "LSTM-checkpoint.pth"):
 
         super(LSTM, self).__init__()
         'We use the embedding layer because the input dataset will be a vocabulary of many words.'
@@ -40,9 +38,6 @@ class LSTM(nn.Module):
         self.rnn = rnn_type(embed_size, rnn_size, batch_first=True)
         self.output = nn.Linear(rnn_size, numClasses)
         self.checkpoint = checkpoint
-        self.optimizer = optimizer
-        self.device = device
-        self.saveInterval = saveInterval
 
         
     def forward(self, x):
@@ -65,76 +60,9 @@ class LSTM(nn.Module):
         self.load_state_dict(state_dict)
 
 
-    """
-     @param trainData is a dictionary with the following structure, that needs a TensorDataset as (train/test)_dataset.
-        {
-            "train": DataLoader(train_dataset, batch_size=batch_size, shuffle=True,  drop_last=True),
-            "test":  DataLoader(test_dataset,  batch_size=batch_size, shuffle=False, drop_last=True)
-        } 
-    """
-    def trainAndTest(self, num_epochs, trainData, save = True):
-        #Transfer model if necessary
-        self.to(self.device)
-        # Start training
-        for epoch in range(num_epochs):
-            # Initialize accumulators for computing average loss/accuracy
-            epoch_loss_sum = {'train': 0, 'test': 0}
-            epoch_loss_cnt = {'train': 0, 'test': 0}
-            epoch_accuracy_sum = {'train': 0, 'test': 0}
-            epoch_accuracy_cnt = {'train': 0, 'test': 0}
-            # Process each split
-            for split in ["train", "test"]:
-                # Set network mode
-                if split == "train":
-                    super.train()
-                    torch.set_grad_enabled(True)
-                else:
-                    super.eval()
-                    torch.set_grad_enabled(False)
-                # Process all data in split
-                data_iter = iter(trainData[split])
-                data_len = len(trainData[split])
-                for i in range(data_len):
-                    # Read data
-                    input, target = next(data_iter)
-                    # Move to device
-                    input = input.to(self.device)
-                    target = target.to(self.device)
-                    # Forward
-                    output = self(input)
-                    loss = F.cross_entropy(output, target)
-                    # Update loss sum
-                    epoch_loss_sum[split] += loss.item()
-                    epoch_loss_cnt[split] += 1
-                    # Compute accuracy
-                    _,pred = output.max(1)
-                    correct = pred.eq(target).sum().item()
-                    accuracy = correct/input.size(0)
-                    # Update accuracy sum
-                    epoch_accuracy_sum[split] += accuracy
-                    epoch_accuracy_cnt[split] += 1
-                    # Backward and optimize
-                    if split == "train":
-                        self.optimizer.zero_grad()
-                        loss.backward()
-                        self.optimizer.step()
-            # Compute average epoch loss/accuracy
-            avg_train_loss = epoch_loss_sum["train"]/epoch_loss_cnt["train"]
-            avg_train_accuracy = epoch_accuracy_sum["train"]/epoch_accuracy_cnt["train"]
-            avg_test_loss = epoch_loss_sum["test"]/epoch_loss_cnt["test"]
-            avg_test_accuracy = epoch_accuracy_sum["test"]/epoch_accuracy_cnt["test"]
-            print(f"Epoch: {epoch+1}, TL={avg_train_loss:.4f}, TA={avg_train_accuracy:.4f}, ŦL={avg_test_loss:.4f}, ŦA={avg_test_accuracy:.4f}")
-
-            if epoch % self.saveInterval == 0:
-                state_dict = self.state_dict()
-                for k,v in state_dict.items():
-                    state_dict[k] = v.cpu()
-                torch.save(state_dict, self.checkpoint[:-3] + f"-{epoch}.pth")
-        
-        return {
-             "avg_train_loss" : avg_train_loss,
-             "avg_train_accuracy" : avg_train_accuracy, 
-             "avg_test_loss" : avg_test_loss, 
-             "avg_test_accuracy" : avg_test_accuracy
-            }
+    def saveState(self, epoch):
+        state_dict = self.state_dict()
+        for k,v in state_dict.items():
+            state_dict[k] = v.cpu()
+        torch.save(state_dict, self.checkpoint[:-3] + f"-{epoch}.pth")
 

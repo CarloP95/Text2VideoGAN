@@ -31,8 +31,12 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 from time import time
+from models import LSTM
+from trainer import Trainer
 from dataloading import TextLoader, DataLoaderFactory
 from torch.utils.data import DataLoader
+
+import torch.backends.cudnn as cudnn; cudnn.benchmark = True
 
 
 
@@ -53,6 +57,18 @@ def addCLArguments(parser):
     parser.add_argument('--path', default = 'caffe/examples/s2vt/results/dataset_Action_Description.txt', type = str,
                             help= 'Set the relative path to find the file that contains the dataset.')
 
+    parser.add_argument('--embed_size', default = 256, type = int,
+                            help= 'Set the embedding size for the RNN.')
+
+    parser.add_argument('--rnn_size', default = 512, type = int,
+                            help= 'Set the RNN size.')
+
+    parser.add_argument('--lr', default = 1e-3, type = float,
+                            help= 'Set the learning rate for the optimizer.')
+
+    parser.add_argument('--weight_decay', default = 5e-4, type = float,
+                            help= 'Set the weight decay for the optimizer.')
+
     return parser
 
 
@@ -64,7 +80,11 @@ def getCLArguments(parser):
         'epochs'        : args.epochs,
         'numClasses'    : args.numClasses,
         'path'          : args.path,
-        'batch_size'    : args.batch_size
+        'batch_size'    : args.batch_size,
+        'weight_decay'  : args.weight_decay,
+        'lr'            : args.lr,
+        'rnn_size'      : args.rnn_size,
+        'embed_size'    : args.embed_size
     }
 
 
@@ -84,6 +104,12 @@ if __name__ == "__main__":
     factory         = DataLoaderFactory(TextLoader(clParameters['path']), clParameters['batch_size']) 
     train_dataLoader, validation_dataLoader, test_dataLoader = factory.dataloaders
 
+    network = LSTM(nn.LSTM, clParameters['rnn_size'], clParameters['weight_decay'], vocabulary)
+    trainer = Trainer(network, train_dataLoader, clParameters['epochs'], device = device,
+                        testLoader= test_dataLoader, validLoader= validation_dataLoader,
+                        lr= clParameters['lr'], weight_decay= clParameters['weight_decay'] )
+
+    trainer.start()
 
     
 
