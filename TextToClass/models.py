@@ -24,25 +24,21 @@
 ## SOFTWARE.                                                                            ##
 ##########################################################################################
 
-import torch
 import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
 
-from torch.utils.data import DataLoader
-#Test a little comment to test if cloning is correct
+
 class LSTM(nn.Module):
 
-    def __init__(self, rnn_type, embed_size, rnn_size, optimizer, inputVocabolary, 
-    checkpoint = "LSTM-checkpoint.pth",
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"), 
-    saveInterval = 20):
-        # Call parent constructor
-        super().__init__()
+    def __init__(self, rnn_type, embed_size, rnn_size, optimizer, inputVocabolary, numClasses = 101,
+                    checkpoint = "LSTM-checkpoint.pth",
+                    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"), 
+                    saveInterval = 20):
+
+        super(LSTM, self).__init__()
         'We use the embedding layer because the input dataset will be a vocabulary of many words.'
         self.embedding = nn.Embedding(len(inputVocabolary)+1, embed_size) 
         self.rnn = rnn_type(embed_size, rnn_size, batch_first=True)
-        self.output = nn.Linear(rnn_size, 2)
+        self.output = nn.Linear(rnn_size, numClasses)
         self.checkpoint = checkpoint
         self.optimizer = optimizer
         self.device = device
@@ -68,7 +64,7 @@ class LSTM(nn.Module):
         state_dict = torch.load(self.checkpoint)
         self.load_state_dict(state_dict)
 
-    
+
     """
      @param trainData is a dictionary with the following structure, that needs a TensorDataset as (train/test)_dataset.
         {
@@ -76,9 +72,9 @@ class LSTM(nn.Module):
             "test":  DataLoader(test_dataset,  batch_size=batch_size, shuffle=False, drop_last=True)
         } 
     """
-    def trainAndTest(self, num_epochs, device, trainData, save = True):
+    def trainAndTest(self, num_epochs, trainData, save = True):
         #Transfer model if necessary
-        self.to(device)
+        self.to(self.device)
         # Start training
         for epoch in range(num_epochs):
             # Initialize accumulators for computing average loss/accuracy
@@ -142,7 +138,3 @@ class LSTM(nn.Module):
              "avg_test_accuracy" : avg_test_accuracy
             }
 
-
-if __name__ == "__main__":
-
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
