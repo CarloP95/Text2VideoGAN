@@ -58,7 +58,7 @@ class TextLoader(Dataset):
             
     """
 
-    def __init__(self, path, dict_file = None, item_length = 100):
+    def __init__(self, path, dict_file = None, item_length = 30):
         super(TextLoader, self).__init__()
         self.path               = path
         self.actions            = []
@@ -99,6 +99,7 @@ class TextLoader(Dataset):
             self.dict_to_class = {action : index for index, action in enumerate(sorted_actions)}
 
         self.samples = [(self.descriptionToNumbers(description), self.dict_to_class[action]) for description, action in self.description_action]
+        
 
     @property
     def numClasses(self):
@@ -110,13 +111,19 @@ class TextLoader(Dataset):
 
     
     def descriptionToNumbers(self, description):
+        description = description.lower()
         return [self.vocabulary[word] for word in description.split(' ')]
 
 
     def __getitem__(self, index):
 
         description         = self.samples[index][0]
-        description.extend([0] * (self.item_length - len(description)) )
+
+        if len(description) < self.item_length:
+            description.extend([0] * (self.item_length - len(description)) )
+            
+        else:
+            description = description[: self.item_length]
         
         description_tensor  = torch.tensor(description)
         action_tensor       = torch.tensor(self.samples[index][1]).long()
@@ -168,7 +175,8 @@ class DataLoaderFactory:
         dataloaders = []
 
         for idx, subset in enumerate(subsets):
-            dataloaders.append(DataLoader(subset, batch_size = self.batch_size, shuffle = shuffle[idx], num_workers = self.num_workers))
+            dataloaders.append(DataLoader(subset, batch_size = self.batch_size, shuffle = shuffle[idx], num_workers = self.num_workers, 
+                                                        drop_last = True, pin_memory = True))
 
         try:
             validDataLoader = dataloaders[2]; testDataLoader = dataloaders[1]
@@ -196,6 +204,3 @@ if __name__ == '__main__':
     factory = DataLoaderFactory(t, batch_size=64, num_workers=0)
     train_dataset, valid_dataset, test_dataset = factory.dataloaders
     print(f'Train: {len(train_dataset)}els\nValid: {len(valid_dataset)}els\nTest: {len(test_dataset)}els')
-
-    for descr, val in train_dataset:
-        break

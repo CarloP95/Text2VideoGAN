@@ -27,10 +27,7 @@
 import torch
 import argparse
 import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
 
-from time import time
 from models import LSTM
 from trainer import Trainer
 from dataloading import TextLoader, DataLoaderFactory
@@ -69,6 +66,9 @@ def addCLArguments(parser):
     parser.add_argument('--weight_decay', default = 5e-4, type = float,
                             help= 'Set the weight decay for the optimizer.')
 
+    parser.add_argument('--load_epoch', default = 0, type = int,
+                            help= 'Set the state epoch to load from disk.')
+
     return parser
 
 
@@ -84,7 +84,8 @@ def getCLArguments(parser):
         'weight_decay'  : args.weight_decay,
         'lr'            : args.lr,
         'rnn_size'      : args.rnn_size,
-        'embed_size'    : args.embed_size
+        'embed_size'    : args.embed_size,
+        'loadEpoch'     : args.load_epoch
     }
 
 
@@ -101,15 +102,36 @@ if __name__ == "__main__":
     clParameters    = getCLArguments( addCLArguments(argparse.ArgumentParser()) )
     device          = getDevice(clParameters)
 
-    factory         = DataLoaderFactory(TextLoader(clParameters['path']), clParameters['batch_size']) 
+    dataset         = TextLoader(clParameters['path'])
+    factory         = DataLoaderFactory(dataset, clParameters['batch_size'])
     train_dataLoader, validation_dataLoader, test_dataLoader = factory.dataloaders
 
-    network = LSTM(nn.LSTM, clParameters['rnn_size'], clParameters['weight_decay'], vocabulary)
+    network = LSTM(nn.LSTM, clParameters['rnn_size'], clParameters['embed_size'], dataset.vocabulary)
     trainer = Trainer(network, train_dataLoader, clParameters['epochs'], device = device,
                         testLoader= test_dataLoader, validLoader= validation_dataLoader,
-                        lr= clParameters['lr'], weight_decay= clParameters['weight_decay'] )
+                        lr= clParameters['lr'], weight_decay= clParameters['weight_decay'], loadEpoch= clParameters['loadEpoch'] )
+    try:
+        trainer.start()
 
-    trainer.start()
+    except KeyboardInterrupt:
+        pass
+
+    network             = trainer.network
+
+    while(True):
+
+        text                = input('Input a string to test how does the model performs >')
+        textToNumbers       = dataset.descriptionToNumbers(text)
+        tensor              = torch.tensor(textToNumbers).cuda().unsqueeze_(0)
+        output              = network(tensor)
+        probability, action = output.max(1)
+
+        dictToClass         = dataset.dict_to_class
+
+        for name, index in dictToClass.items():
+            if index == action:
+                print(f'Predicted class is [Name: {name}, Index: {action.item()}] with probability {probability.item():.4f}')
+
 
     
 

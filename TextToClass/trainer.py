@@ -35,7 +35,8 @@ class Trainer:
     def __init__(self, network, trainLoader, num_epochs = 120, save_interval = 20,
                     device = torch.device('cpu'), testLoader = None, validLoader = None,
                     lossCriterion = CrossEntropyLoss, 
-                    optimizer = Adam, lr = 0.001, weight_decay = 1e-4 ):
+                    optimizer = Adam, lr = 0.001, weight_decay = 1e-4,
+                    loadEpoch = None ):
 
         self.device         = device
         self.network        = network
@@ -46,13 +47,19 @@ class Trainer:
         self.save_interval  = save_interval
         self.lossCriterion  = lossCriterion()
         self.optimizer      = optimizer(self.network.parameters(), lr = lr, weight_decay = weight_decay)
+        self.loadEpoch      = loadEpoch
 
         self.moveToDevice()
+        self.load()
 
+
+    def load(self):
+        if self.loadEpoch:
+            self.network.loadState(self.loadEpoch)
 
     def moveToDevice(self):
         
-        toMigrate = [self.optimizer, self.lossCriterion, self.network]
+        toMigrate = [self.lossCriterion, self.network]
 
         for moveItem in toMigrate:
             moveItem.to(self.device)
@@ -72,28 +79,28 @@ class Trainer:
         losses      = []
         accuracies  = []
 
-        for index, (sentences, actions) in loader:
+        for index, (sentences, actions) in enumerate(loader):
             
             self.optimizer.zero_grad()
 
-            sentences.to(self.device)
-            actions.to(self.device)
+            sentences = sentences.to(self.device)
+            actions   = actions.to(self.device)
 
             output = self.network(sentences)
             loss = self.lossCriterion(output, actions)
 
-            predictedAction , predicted = output.max(1)
-            correct = predicted.eq(sentences).sum().item()
+            predictedValues , predictedActions = output.max(1)
+            correct = predictedActions.eq(actions).sum().item()
             accuracy = correct/sentences.size(0)
 
             if isTraining:
                 loss.backward()
                 self.optimizer.step()
 
-            losses.append(loss)
+            losses.append(loss.item())
             accuracies.append(accuracy)
 
-            print(f'\rBatch [{index}/{len(loader)}] {mode.capitalize()}\t Loss: {loss.item():.4f}, Accuracy: {accuracy.item():.4f}', end = '')
+            print(f'\rBatch [{index + 1}/{len(loader)}] {mode.capitalize()}\t Loss: {loss:.4f}, Accuracy: {accuracy:.4f}', end = '')
 
         return (losses, accuracies)
 
@@ -102,22 +109,37 @@ class Trainer:
         
         for current_epoch in range(self.num_epochs):
             # Initialize accumulators for computing average loss/accuracy
-            epoch_loss_sum = {'train': 0, 'test': 0}
-            epoch_loss_cnt = {'train': 0, 'test': 0}
-            epoch_accuracy_sum = {'train': 0, 'test': 0}
-            epoch_accuracy_cnt = {'train': 0, 'test': 0}
+            epoch_loss_sum = {'train': 0, 'valid':0, 'test': 0}
+            epoch_loss_cnt = {'train': 0, 'valid':0, 'test': 0}
+            epoch_accuracy_sum = {'train': 0, 'valid':0, 'test': 0}
+            epoch_accuracy_cnt = {'train': 0, 'valid':0, 'test': 0}
+            
+            print(f'{"-"*10}Epoch {current_epoch + 1}{"-"*10}')
             # Process each split
             for split, loader in [("train", self.trainLoader), ("valid", self.validLoader), ("test", self.testLoader)]:
                 
-                self._cycle(split, loader)
-            # Compute average epoch loss/accuracy
-            avg_train_loss = epoch_loss_sum["train"]/epoch_loss_cnt["train"]
-            avg_train_accuracy = epoch_accuracy_sum["train"]/epoch_accuracy_cnt["train"]
-            avg_test_loss = epoch_loss_sum["test"]/epoch_loss_cnt["test"]
-            avg_test_accuracy = epoch_accuracy_sum["test"]/epoch_accuracy_cnt["test"]
-            print(f"Epoch: {epoch+1}, TL={avg_train_loss:.4f}, TA={avg_train_accuracy:.4f}, ŦL={avg_test_loss:.4f}, ŦA={avg_test_accuracy:.4f}")
+                losses, accuracies = self._cycle(split, loader)
+                print('\n')
 
-            if current_epoch % self.save_interval == 0:
+                epoch_loss_cnt[split]       += 1
+                epoch_loss_sum[split]       += sum(losses)/len(losses)
+                epoch_accuracy_cnt[split]   += 1
+                epoch_accuracy_sum[split]   += sum(accuracies)/len(accuracies)
+
+
+            # Compute average epoch loss/accuracy
+            avg_train_loss      = epoch_loss_sum["train"]/epoch_loss_cnt["train"]
+            avg_train_accuracy  = epoch_accuracy_sum["train"]/epoch_accuracy_cnt["train"]
+            avg_valid_loss      = epoch_loss_sum["valid"]/epoch_loss_cnt["valid"]
+            avg_valid_accuracy  = epoch_accuracy_sum["valid"]/epoch_accuracy_cnt["valid"]
+            avg_test_loss       = epoch_loss_sum["test"]/epoch_loss_cnt["test"]
+            avg_test_accuracy   = epoch_accuracy_sum["test"]/epoch_accuracy_cnt["test"]
+
+            print(f"Epoch: {current_epoch + 1}/{self.num_epochs}, Train: Loss={avg_train_loss:.4f}, Accuracy ={avg_train_accuracy:.4f}.\
+                Validation: Loss={avg_valid_loss:.4f}, Accuracy={avg_valid_accuracy:.4f}.\
+                Test: Loss={avg_test_loss:.4f}, Accuracy={avg_test_accuracy:.4f}.\n")
+
+            if current_epoch + 1 % self.save_interval == 0:
                 self.network.saveState(current_epoch)
         
         return {

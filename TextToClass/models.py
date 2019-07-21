@@ -25,6 +25,7 @@
 ##########################################################################################
 
 import torch.nn as nn
+import torch
 
 
 class LSTM(nn.Module):
@@ -55,8 +56,8 @@ class LSTM(nn.Module):
         return x
 
 
-    def loadState(self):
-        state_dict = torch.load(self.checkpoint)
+    def loadState(self, epoch):
+        state_dict = torch.load(self.checkpoint[:-3] +  f'-{epoch}.pth')
         self.load_state_dict(state_dict)
 
 
@@ -64,5 +65,5 @@ class LSTM(nn.Module):
         state_dict = self.state_dict()
         for k,v in state_dict.items():
             state_dict[k] = v.cpu()
-        torch.save(state_dict, self.checkpoint[:-3] + f"-{epoch}.pth")
+        torch.save(state_dict, self.checkpoint[:-4] + f"-{epoch}.pth")
 
