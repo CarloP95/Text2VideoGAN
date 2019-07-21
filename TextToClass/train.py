@@ -72,6 +72,10 @@ def addCLArguments(parser):
     parser.add_argument('--save_interval', default = 20, type = int,
                             help= 'Set save interval for the model state.')
 
+    parser.add_argument('--sequence_length', default = 30, type = int,
+                            help= 'Set the maximum length for each item that will be given to the model.')
+
+
     return parser
 
 
@@ -89,7 +93,8 @@ def getCLArguments(parser):
         'rnn_size'      : args.rnn_size,
         'embed_size'    : args.embed_size,
         'loadEpoch'     : args.load_epoch,
-        'save_interval' : args.save_interval
+        'save_interval' : args.save_interval,
+        'sequence_len'  : args.sequence_length
     }
 
 
@@ -106,7 +111,7 @@ if __name__ == "__main__":
     clParameters    = getCLArguments( addCLArguments(argparse.ArgumentParser()) )
     device          = getDevice(clParameters)
 
-    dataset         = TextLoader(clParameters['path'])
+    dataset         = TextLoader(clParameters['path'], item_length= clParameters['sequence_len'])
     factory         = DataLoaderFactory(dataset, clParameters['batch_size'])
     train_dataLoader, validation_dataLoader, test_dataLoader = factory.dataloaders
 
