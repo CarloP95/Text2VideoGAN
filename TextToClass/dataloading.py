@@ -26,6 +26,7 @@
 
 from torch.utils.data import DataLoader, Dataset, random_split
 
+from string import punctuation
 
 class TextLoader(Dataset):
     """
@@ -33,10 +34,20 @@ class TextLoader(Dataset):
     <<(Action||Class)Name>><<tab>><<Text>>
     E.g. Biking\tA man is riding a bicycle.
 
+    With this class you must use 0 as your Padding Character.
+
     Constructor:
     -----------
         path: string
             The path to the file that is formatted as written above.
+
+        dict_file: string
+            The path to the file that contains the dict_to_classes mapping.
+            The mapping must be as the following line:
+            E.g. 1 ApplyEyeMakeup
+
+        item_length: int
+            The requested length for each sample.
 
     Properties:
     ----------
@@ -45,27 +56,49 @@ class TextLoader(Dataset):
             
     """
 
-    def __init__(self, path, item_length = 100):
+    def __init__(self, path, dict_file = None, item_length = 100):
         super(TextLoader, self).__init__()
         self.path           = path
         self.actions        = []
         self.samples        = []
+        self.descriptions   = []
         self.item_length    = item_length
+        self.dict_file      = dict_file
 
         try:
             with open(path, 'r+') as fileDataset:
 
                 for line in fileDataset:
-                    cleanLine = line.rstrip('\n\r')
+                    cleanLine = (line.rstrip('\n\r')).lower()
+                    cleanLine = cleanLine.translate(str.maketrans('', '', punctuation))
                     action_description = cleanLine.split('\t')
                     self.actions.append(action_description[0])
+                    self.descriptions.append(action_description[1])
                     self.samples.append( ( action_description[1], action_description[0]) )
 
         except FileNotFoundError as err:
             print(f'File in path {path} was not found.\n{err}')
             exit(1)
 
-        self.actions = list(dict.fromkeys(self.actions))
+        self.actions        = list(dict.fromkeys(self.actions))
+        self.allWords       = [word for description in self.descriptions for word in description.split(' ')]
+        self.words          = list(dict.fromkeys(self.allWords))
+        self.vocabulary     = {self.words[idx]: idx + 1 for idx in range(len(self.words))}
+
+        try:
+            self.dict_to_class = self.loadDictFromFile(self.dict_file)
+
+        except (ValueError, FileNotFoundError) as ex:
+            if isinstance(ex, FileNotFoundError):
+                print(f'File {self.dict_file} was not found. Using default enumeration for classes.')
+            
+            sorted_actions     = sorted(self.actions)
+            self.dict_to_class = {action : index for index, action in enumerate(sorted_actions)}
+
+
+    @property
+    def numClasses(self):
+        return len(self.actions)
 
 
     def __len__(self):
@@ -77,10 +110,14 @@ class TextLoader(Dataset):
         raise NotImplementedError('Need to implement the padding and converting into tensor.')
         return self.samples[index]
 
+    def loadDictFromFile(self, path):
+        if not path:
+            raise ValueError(f'Get {path}. Expected a Path.')
 
-    @property
-    def numClasses(self):
-        return len(self.actions)
+        with open(path, 'r+') as file:
+            toReturn = {line.split()[1]: line.split()[0] for line in file}
+
+        return toReturn
 
 
 class DataLoaderFactory:
@@ -139,3 +176,10 @@ if __name__ == '__main__':
     factory = DataLoaderFactory(t, batch_size=1, validation= False)
     train_dataset, test_dataset = factory.dataloaders
     print(f'Train: {len(train_dataset)}els\nTest: {len(test_dataset)}els')
+
+    t = TextLoader('/home/carlo/Documents/Cognitive Computing/Text2VideoGAN/caffe/examples/s2vt/results/dataset_Action_Description.txt', 
+                            '/home/carlo/Documents/Cognitive Computing/Text2VideoGAN/mocogan/ucfTrainTestlist/classInd.txt')
+
+    factory = DataLoaderFactory(t, batch_size=64)
+    train_dataset, valid_dataset, test_dataset = factory.dataloaders
+    print(f'Train: {len(train_dataset)}els\nValid: {len(valid_dataset)}els\nTest: {len(test_dataset)}els')
