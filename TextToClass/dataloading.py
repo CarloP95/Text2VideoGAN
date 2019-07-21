@@ -28,6 +28,8 @@ from torch.utils.data import DataLoader, Dataset, random_split
 
 from string import punctuation
 
+import torch
+
 class TextLoader(Dataset):
     """
     TextLoader class that expects a file formatted in the following way:
@@ -58,12 +60,13 @@ class TextLoader(Dataset):
 
     def __init__(self, path, dict_file = None, item_length = 100):
         super(TextLoader, self).__init__()
-        self.path           = path
-        self.actions        = []
-        self.samples        = []
-        self.descriptions   = []
-        self.item_length    = item_length
-        self.dict_file      = dict_file
+        self.path               = path
+        self.actions            = []
+        self.descriptions       = []
+        self.description_action = []
+        self.item_length        = item_length
+        self.dict_file          = dict_file
+        self.pad_number         = 0
 
         try:
             with open(path, 'r+') as fileDataset:
@@ -74,7 +77,7 @@ class TextLoader(Dataset):
                     action_description = cleanLine.split('\t')
                     self.actions.append(action_description[0])
                     self.descriptions.append(action_description[1])
-                    self.samples.append( ( action_description[1], action_description[0]) )
+                    self.description_action.append(( action_description[1], action_description[0]))
 
         except FileNotFoundError as err:
             print(f'File in path {path} was not found.\n{err}')
@@ -95,6 +98,7 @@ class TextLoader(Dataset):
             sorted_actions     = sorted(self.actions)
             self.dict_to_class = {action : index for index, action in enumerate(sorted_actions)}
 
+        self.samples = [(self.descriptionToNumbers(description), self.dict_to_class[action]) for description, action in self.description_action]
 
     @property
     def numClasses(self):
@@ -104,18 +108,27 @@ class TextLoader(Dataset):
     def __len__(self):
         return len(self.samples)
 
+    
+    def descriptionToNumbers(self, description):
+        return [self.vocabulary[word] for word in description.split(' ')]
+
 
     def __getitem__(self, index):
-        print(self.samples[index])
-        raise NotImplementedError('Need to implement the padding and converting into tensor.')
-        return self.samples[index]
+
+        description         = self.samples[index][0]
+        description.extend([0] * (self.item_length - len(description)) )
+        
+        description_tensor  = torch.tensor(description)
+        action_tensor       = torch.tensor(self.samples[index][1]).long()
+
+        return description_tensor, action_tensor
 
     def loadDictFromFile(self, path):
         if not path:
             raise ValueError(f'Get {path}. Expected a Path.')
 
         with open(path, 'r+') as file:
-            toReturn = {line.split()[1]: line.split()[0] for line in file}
+            toReturn = {line.split()[1].lower(): int(line.split()[0]) for line in file}
 
         return toReturn
 
@@ -180,6 +193,9 @@ if __name__ == '__main__':
     t = TextLoader('/home/carlo/Documents/Cognitive Computing/Text2VideoGAN/caffe/examples/s2vt/results/dataset_Action_Description.txt', 
                             '/home/carlo/Documents/Cognitive Computing/Text2VideoGAN/mocogan/ucfTrainTestlist/classInd.txt')
 
-    factory = DataLoaderFactory(t, batch_size=64)
+    factory = DataLoaderFactory(t, batch_size=64, num_workers=0)
     train_dataset, valid_dataset, test_dataset = factory.dataloaders
     print(f'Train: {len(train_dataset)}els\nValid: {len(valid_dataset)}els\nTest: {len(test_dataset)}els')
+
+    for descr, val in train_dataset:
+        break
