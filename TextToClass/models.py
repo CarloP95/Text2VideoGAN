@@ -57,7 +57,7 @@ class LSTM(nn.Module):
 
 
     def loadState(self, epoch):
-        state_dict = torch.load(self.checkpoint[:-3] +  f'-{epoch}.pth')
+        state_dict = torch.load(self.checkpoint[:-4] +  f'-{epoch}.pth')
         self.load_state_dict(state_dict)
 
 

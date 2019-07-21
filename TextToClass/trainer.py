@@ -138,9 +138,11 @@ class Trainer:
             print(f"Epoch: {current_epoch + 1}/{self.num_epochs}, Train: Loss={avg_train_loss:.4f}, Accuracy ={avg_train_accuracy:.4f}.\
                 Validation: Loss={avg_valid_loss:.4f}, Accuracy={avg_valid_accuracy:.4f}.\
                 Test: Loss={avg_test_loss:.4f}, Accuracy={avg_test_accuracy:.4f}.\n")
-
-            if current_epoch + 1 % self.save_interval == 0:
-                self.network.saveState(current_epoch)
+            
+            
+            if int(current_epoch + 1) % int(self.save_interval) == 0:
+                print('Saving the state...')
+                self.network.saveState(current_epoch + 1)
         
         return {
              "avg_train_loss" : avg_train_loss,

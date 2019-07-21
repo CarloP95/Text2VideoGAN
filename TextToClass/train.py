@@ -69,6 +69,9 @@ def addCLArguments(parser):
     parser.add_argument('--load_epoch', default = 0, type = int,
                             help= 'Set the state epoch to load from disk.')
 
+    parser.add_argument('--save_interval', default = 20, type = int,
+                            help= 'Set save interval for the model state.')
+
     return parser
 
 
@@ -85,7 +88,8 @@ def getCLArguments(parser):
         'lr'            : args.lr,
         'rnn_size'      : args.rnn_size,
         'embed_size'    : args.embed_size,
-        'loadEpoch'     : args.load_epoch
+        'loadEpoch'     : args.load_epoch,
+        'save_interval' : args.save_interval
     }
 
 
@@ -109,7 +113,8 @@ if __name__ == "__main__":
     network = LSTM(nn.LSTM, clParameters['rnn_size'], clParameters['embed_size'], dataset.vocabulary)
     trainer = Trainer(network, train_dataLoader, clParameters['epochs'], device = device,
                         testLoader= test_dataLoader, validLoader= validation_dataLoader,
-                        lr= clParameters['lr'], weight_decay= clParameters['weight_decay'], loadEpoch= clParameters['loadEpoch'] )
+                        lr= clParameters['lr'], weight_decay= clParameters['weight_decay'], 
+                        loadEpoch= clParameters['loadEpoch'], save_interval= clParameters['save_interval'] )
     try:
         trainer.start()
 
