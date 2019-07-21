@@ -112,7 +112,7 @@ class TextLoader(Dataset):
     
     def descriptionToNumbers(self, description):
         description = description.lower()
-        return [self.vocabulary[word] for word in description.split(' ')]
+        return [self.vocabulary[word] for word in description.split(' ') if len(word) > 0]
 
 
     def __getitem__(self, index):
@@ -121,7 +121,7 @@ class TextLoader(Dataset):
 
         if len(description) < self.item_length:
             description.extend([0] * (self.item_length - len(description)) )
-            
+
         else:
             description = description[: self.item_length]
         

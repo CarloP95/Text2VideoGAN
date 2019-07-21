@@ -132,6 +132,8 @@ if __name__ == "__main__":
 
         text                = input('Input a string to test how does the model performs >')
         textToNumbers       = dataset.descriptionToNumbers(text)
+        textToNumbers.extend([0]* (clParameters['sequence_len'] - len(textToNumbers)))
+        
         tensor              = torch.tensor(textToNumbers).cuda().unsqueeze_(0)
         output              = network(tensor)
         probability, action = output.max(1)
