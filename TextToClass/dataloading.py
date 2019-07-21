@@ -72,8 +72,7 @@ class TextLoader(Dataset):
             with open(path, 'r+') as fileDataset:
 
                 for line in fileDataset:
-                    cleanLine = (line.rstrip('\n\r')).lower()
-                    cleanLine = cleanLine.translate(str.maketrans('', '', punctuation))
+                    cleanLine = self.cleanText(line)
                     action_description = cleanLine.split('\t')
                     self.actions.append(action_description[0])
                     self.descriptions.append(action_description[1])
@@ -84,7 +83,7 @@ class TextLoader(Dataset):
             exit(1)
 
         self.actions        = list(dict.fromkeys(self.actions))
-        self.allWords       = [word for description in self.descriptions for word in description.split(' ')]
+        self.allWords       = [word for description in self.descriptions for word in description.split(' ') if len(word) > 0]
         self.words          = list(dict.fromkeys(self.allWords))
         self.vocabulary     = {self.words[idx]: idx + 1 for idx in range(len(self.words))}
 
@@ -98,7 +97,7 @@ class TextLoader(Dataset):
             sorted_actions     = sorted(self.actions)
             self.dict_to_class = {action : index for index, action in enumerate(sorted_actions)}
 
-        self.samples = [(self.descriptionToNumbers(description), self.dict_to_class[action]) for description, action in self.description_action]
+        self.samples = [(self.prepareTxtForTensor(description), self.dict_to_class[action]) for description, action in self.description_action]
         
 
     @property
@@ -109,21 +108,37 @@ class TextLoader(Dataset):
     def __len__(self):
         return len(self.samples)
 
-    
+
+    def cleanText(self, text):
+        cleanLine = (text.rstrip('\n\r')).lower()
+        return cleanLine.translate(str.maketrans('', '', punctuation))
+
+
     def descriptionToNumbers(self, description):
         description = description.lower()
         return [self.vocabulary[word] for word in description.split(' ') if len(word) > 0]
 
 
+    def toFixedLengthSequence(self, numbers):
+        if len(numbers) < self.item_length:
+            numbers.extend([0] * (self.item_length - len(numbers)))
+        else:
+            numbers = numbers[:self.item_length]
+
+        return numbers
+
+
+    def prepareTxtForTensor(self, text):
+        cleanText   = self.cleanText(text)
+        description = self.descriptionToNumbers(text)
+        sequence    = self.toFixedLengthSequence(description)
+
+        return sequence
+
+
     def __getitem__(self, index):
 
         description         = self.samples[index][0]
-
-        if len(description) < self.item_length:
-            description.extend([0] * (self.item_length - len(description)) )
-
-        else:
-            description = description[: self.item_length]
         
         description_tensor  = torch.tensor(description)
         action_tensor       = torch.tensor(self.samples[index][1]).long()
