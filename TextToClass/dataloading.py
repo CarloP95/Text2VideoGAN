@@ -130,7 +130,7 @@ class TextLoader(Dataset):
 
     def prepareTxtForTensor(self, text):
         cleanText   = self.cleanText(text)
-        description = self.descriptionToNumbers(text)
+        description = self.descriptionToNumbers(cleanText)
         sequence    = self.toFixedLengthSequence(description)
 
         return sequence
