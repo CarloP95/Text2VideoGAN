@@ -102,17 +102,30 @@ if __name__ == '__main__':
         words = None
         with open('TextToClass/included_words.json') as checkWords:
             words = json.load(checkWords)
-        print(words)
+        
+
         for (className, description), num_occurrencies in tqdm(occurrencies_to_check.items()):
             
             if (className, description) in toDelete_keys:
                 continue
 
+            toBe_counter = 0
+            try:
+                for word in words[className]['notToBe']:
+                    if word in description:
+                        toDelete_keys.append((className, description))
 
-            print(f'{className} -> {description} -- #global occurrencies {num_occurrencies}\n')
-            print(f'-- #local occurrencies {duplicates_list[(className, description)]}')
+                for word in words[className]['toBe']:
+                    if word in description:
+                        toBe_counter += 1
+                        
+                        if toBe_counter >= 3:
+                            notToDelete_keys.append((className, description))
+                            break
+            except KeyError as _:
+                pass
             
-
+        toDelete_keys   = list(dict.fromkeys(toDelete_keys))
         ## 5. Apply the strategies decided above
         newDataset = {}
 
@@ -124,15 +137,18 @@ if __name__ == '__main__':
 
                     try:
                         isinstance(newDataset[actionClass], list)
-
+                        idx = newDataset[actionClass].index(description)
+                        print(idx)
                     except KeyError as _:
                         newDataset[actionClass] = []
+                    except ValueError as _:
+                        pass
 
                     newDataset[actionClass].append(description)
 
         with open('output.txt', 'w') as output:
             for action, descriptions in newDataset.items():
                 for description in descriptions:
-                    output.write(f'{action}\t{description}\n\r')
+                    output.write(f'{action}\t{description}\n')
 
             
