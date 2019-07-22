@@ -134,7 +134,7 @@ if __name__ == "__main__":
         tensor              = torch.tensor(dataset.prepareTxtForTensor(text)).cuda().unsqueeze_(0)
         output              = network(tensor)
         probability, action = output.max(1)
-
+        
         dictToClass         = dataset.dict_to_class
 
         for name, index in dictToClass.items():

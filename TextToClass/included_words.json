@@ -1,0 +1,312 @@
+{
+    "SalsaSpin" :  {
+        "toBe" : ['group', 'woman', 'man', 'women', 'men', 'dancing', 'stage', 'girl'],
+        "notToBe" : ['bike', 'bicycle']
+    },
+    
+    "TennisSwing":  {
+        "toBe" : ['man', 'men', 'group', 'tennis', 'ball', 'woman', 'playing'],
+        "notToBe" : ['bike', 'horse', 'race']
+    },
+    
+    "PlayingFlute":   {
+        "toBe": ['woman', 'man', 'playing', 'flute', 'instrument'],
+        "notToBe": ['guitar', 'violin', 'hair', 'gun', 'board', 'telephone', 'phone']
+    },
+    
+    "PizzaTossing":   {
+        "toBe": ['man', 'woman', 'working', 'pouring', ''],
+        "notToBe": []
+    },
+    
+    "Mixing":   {
+        "toBe": ['mixing', 'pouring', 'woman', 'something', 'water', 'putting', 'man', 'cooking', 'ingredients', 'food', 'egg', 'bowl', 'meat'],
+        "notToBe" : ['playing', 'basketball']
+    },
+    
+    "PushUps":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'sleeping', 'bed']
+    },
+    
+    "CleanAndJerk":   {
+        "toBe": ['man', 'exercise', 'doing', 'barbell'],
+        "notToBe" : ['cat', 'dog', 'walking', 'ball', 'woman', 'board', 'dancing', 'basketball', 'guitar']
+    },
+    
+    "Hammering":   {
+        "toBe": ['woman', 'doing', 'house', 'floor', 'man', 'table', ''],
+        "notToBe" : ['cat', 'dog', 'guitar', 'bike', 'bath', 'gym', 'gun', 'stunt', 'soda', 'bicycle', 'telephone', 'phone', 'barbell', 'bath']
+    },
+    
+    "LongJump":   {
+        "toBe": ['man', 'jumping', 'jump', 'race', '' ],
+        "notToBe" : ['cat', 'dog', 'horse', 'writing', 'skateboard', 'ball', 'rope']
+    },
+    
+    "PlayingCello":   {
+        "toBe": ['woman', 'large', 'man', 'playing', 'music'],
+        "notToBe" : ['cat', 'dog', 'hair', 'guitar', 'cleaning', 'skateboard', 'rope', 'phone', 'singing']
+    },
+    
+    "SumoWrestling":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'ball', 'horse', 'car', 'wall', 'bath', 'floor']
+    },
+    
+    "IceDancing":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'basketball', 'skateboard', 'yoga']
+    },
+    
+    "YoYo":   {
+        "toBe": ['trick', 'man', 'woman', 'doing'],
+        "notToBe" : ['cat', 'dog', 'stunt', 'gun', 'guitar', 'mountain', 'bike']
+    },
+    
+    "JugglingBalls":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'gun', 'bed', 'bicycle', 'walking', 'hair', 'piano', 'house', 'glass', 'flute', 'ball', 'room']
+    },
+    
+    "FloorGymnastics":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'sleeping', 'bed']
+    },
+    
+    "TrampolineJumping":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "CricketBowling":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "BodyWeightSquats":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "Shotput":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "PlayingViolin":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "ParallelBars":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "PullUps":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "Rafting":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "Fencing":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "Basketball":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "VolleyballSpiking":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "GolfSwing":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "JumpingJack":   {
+        "toBe": ['man', 'doing', 'exercise', 'woman', 'jump', 'jumping'],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "CliffDiving":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "Nunchucks":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "TaiChi":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "HulaHoop":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "WallPushups":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "SkyDiving":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "HammerThrow":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "HighJump":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "FrisbeeCatch":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "BandMarching":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "RopeClimbing":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "ThrowDiscus":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "CricketShot":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "SoccerPenalty":   {
+        "toBe": ['man', 'group', 'ball', 'goal'],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "Surfing":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "HorseRace":   {
+        "toBe": ['horse', 'man', 'riding'],
+        "notToBe" : ['cat', 'dog', 'sleeping', 'bed']
+    },
+    
+    "SoccerJuggling":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "SkateBoarding":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "StillRings":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "Skiing":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "Biking":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "Archery":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "Swing":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "BasketballDunk":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "HorseRiding":   {
+        "toBe": ['horse', 'man', 'riding', 'fence', 'woman', 'walking'],
+        "notToBe" : ['cat', 'dog', 'sleeping', 'bed', 'bicycle', 'bike']
+    },
+    
+    "Kayaking":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "PoleVault":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "Lunges":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "WalkingWithDog":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "HandstandWalking":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "JavelinThrow":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "Bowling":        {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+    
+    "JumpRope":   {
+        "toBe": [],
+        "notToBe" : ['cat', 'dog', 'horse', 'sleeping', 'bed']
+    },
+
+    
+    
+    
+    
+    
+}
