@@ -135,11 +135,7 @@ if __name__ == "__main__":
         output              = network(tensor)
         probability, action = output.max(1)
         
-        dictToClass         = dataset.dict_to_class
-
-        for name, index in dictToClass.items():
-            if index == action:
-                print(f'Predicted class is [Name: {name}, Index: {action.item()}] with probability {probability.item():.4f}')
+        print(f'Predicted class is {dataset.getClassNameFromIndex(action)} with probability {probability}')
 
 
     

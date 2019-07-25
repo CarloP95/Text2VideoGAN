@@ -72,7 +72,7 @@ class TextLoader(Dataset):
             with open(path, 'r+') as fileDataset:
 
                 for line in fileDataset:
-                    cleanLine = self.cleanText(line)
+                    cleanLine = self._cleanText(line)
                     action_description = cleanLine.split('\t')
                     self.actions.append(action_description[0])
                     self.descriptions.append(action_description[1])
@@ -95,7 +95,7 @@ class TextLoader(Dataset):
                 print(f'File {self.dict_file} was not found. Using default enumeration for classes.')
             
             sorted_actions     = sorted(self.actions)
-            self.dict_to_class = {action : index for index, action in enumerate(sorted_actions)}
+            self.dict_to_class = {action : index + 1 for index, action in enumerate(sorted_actions)}
 
         self.samples = [(self.prepareTxtForTensor(description), self.dict_to_class[action]) for description, action in self.description_action]
         
@@ -109,17 +109,17 @@ class TextLoader(Dataset):
         return len(self.samples)
 
 
-    def cleanText(self, text):
+    def _cleanText(self, text):
         cleanLine = (text.rstrip('\n\r')).lower()
         return cleanLine.translate(str.maketrans('', '', punctuation))
 
 
-    def descriptionToNumbers(self, description):
+    def _descriptionToNumbers(self, description):
         description = description.lower()
         return [self.vocabulary[word] for word in description.split(' ') if len(word) > 0]
 
 
-    def toFixedLengthSequence(self, numbers):
+    def _toFixedLengthSequence(self, numbers):
         if len(numbers) < self.item_length:
             numbers.extend([0] * (self.item_length - len(numbers)))
         else:
@@ -129,11 +129,17 @@ class TextLoader(Dataset):
 
 
     def prepareTxtForTensor(self, text):
-        cleanText   = self.cleanText(text)
-        description = self.descriptionToNumbers(cleanText)
-        sequence    = self.toFixedLengthSequence(description)
+        cleanText   = self._cleanText(text)
+        description = self._descriptionToNumbers(cleanText)
+        sequence    = self._toFixedLengthSequence(description)
 
         return sequence
+
+    def getClassNameFromIndex(self, actionIndex):
+
+        for name, index in self.dict_to_class.items():
+                if index == actionIndex:
+                    return name
 
 
     def __getitem__(self, index):

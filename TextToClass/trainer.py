@@ -84,7 +84,7 @@ class Trainer:
             self.optimizer.zero_grad()
 
             sentences = sentences.to(self.device)
-            actions   = actions.to(self.device)
+            actions   = actions.to(self.device);    actions -= 1
 
             output = self.network(sentences)
             loss = self.lossCriterion(output, actions)
@@ -113,6 +113,12 @@ class Trainer:
             epoch_loss_cnt = {'train': 0, 'valid':0, 'test': 0}
             epoch_accuracy_sum = {'train': 0, 'valid':0, 'test': 0}
             epoch_accuracy_cnt = {'train': 0, 'valid':0, 'test': 0}
+
+            firstEpoch_overfit      = False
+
+            if not firstEpoch_overfit:
+                prevEpochNetworkState   = self.network.state_dict()
+                prevEpochOptimizerState = self.optimizer.state_dict()
             
             print(f'{"-"*10}Epoch {current_epoch + 1}{"-"*10}')
             # Process each split
@@ -139,11 +145,29 @@ class Trainer:
                 Validation: Loss={avg_valid_loss:.4f}, Accuracy={avg_valid_accuracy:.4f}.\
                 Test: Loss={avg_test_loss:.4f}, Accuracy={avg_test_accuracy:.4f}.\n")
             
+            ## Check for overfitting
+            if avg_train_accuracy > avg_valid_accuracy and avg_train_loss < avg_valid_loss:
+
+                if not firstEpoch_overfit:
+                    firstEpoch_overfit = True
+                    print('Probable overfit is occurring. Next epoch weights will be loaded and learning rate will be updated.')
+
+                else:
+                    firstEpoch_overfit = False
+                    self.network.load_state_dict(prevEpochNetworkState)
+                    self.optimizer.load_state_dict(prevEpochOptimizerState)
+                    for g in self.optimizer.param_groups:
+                        g['lr'] = g['lr']/10
+                    print('Overfit Detected. Loading back 2 epochs ago and reducing learning rate.')
             
+            else: # Reset, second epoch overfit was not detected.
+                firstEpoch_overfit = False if firstEpoch_overfit else True
+
             if int(current_epoch + 1) % int(self.save_interval) == 0:
                 print('Saving the state...')
                 self.network.saveState(current_epoch + 1)
         
+
         return {
              "avg_train_loss" : avg_train_loss,
              "avg_train_accuracy" : avg_train_accuracy, 
