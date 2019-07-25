@@ -85,17 +85,52 @@ if __name__ == '__main__':
         print('Deleting those who are not duplicates...')
 
         occurrencies_to_check = {}
+        occurrencies_to_write = {}
 
         for (className, description), num_occurrencies in global_occurrencies.items():
 
             if num_occurrencies <= 1:
+                try:
+                    occurrencies_to_write[className].append(description)
+                    
+                except KeyError as _:
+                    occurrencies_to_write[className] = [description]
+
                 continue
             
             occurrencies_to_check[(className, description)] = num_occurrencies
 
         print(f'Found {len(occurrencies_to_check)} occurrencies that needs a check.')
 
+        from operator import itemgetter
+        processedDescriptions = []
+
+        for (className, description), num_occurrencies in occurrencies_to_check.items():
+            
+            if description in processedDescriptions:
+                continue
+
+            balanceForEachClass = {className : num_occurrencies}
+            
+            for (inner_className, inner_description), inner_num_occurrencies in occurrencies_to_check.items():
+                if (inner_className, inner_description) == (className, description) 
+                        or inner_description != description:
+                    continue
+                balanceForEachClass[inner_className] = inner_num_occurrencies
+
+            className, _ = max(balanceForEachClass.items(), key = operator.itemgetter(1))
+            processedDescriptions.append(description)
+            try:
+                occurrencies_to_write[className].append(description)
+                    
+            except KeyError as _:
+                occurrencies_to_write[className] = [description]
+
+        print(f'End processing.')
+        exit(0)
+
         ## 4. Decide strategy to eliminate duplicates
+        """
         toDelete_keys       = []
         notToDelete_keys    = []
 
@@ -145,7 +180,8 @@ if __name__ == '__main__':
                         pass
 
                     newDataset[actionClass].append(description)
-
+        """
+        newDataset = occurrencies_to_write
         with open('output.txt', 'w') as output:
             for action, descriptions in newDataset.items():
                 for description in descriptions:

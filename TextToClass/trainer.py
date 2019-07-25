@@ -106,15 +106,18 @@ class Trainer:
 
 
     def start(self):
-        
+
+
+        firstEpoch_overfit      = False
+
+
         for current_epoch in range(self.num_epochs):
             # Initialize accumulators for computing average loss/accuracy
             epoch_loss_sum = {'train': 0, 'valid':0, 'test': 0}
             epoch_loss_cnt = {'train': 0, 'valid':0, 'test': 0}
             epoch_accuracy_sum = {'train': 0, 'valid':0, 'test': 0}
             epoch_accuracy_cnt = {'train': 0, 'valid':0, 'test': 0}
-
-            firstEpoch_overfit      = False
+            
 
             if not firstEpoch_overfit:
                 prevEpochNetworkState   = self.network.state_dict()
