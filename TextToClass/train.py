@@ -60,7 +60,7 @@ def addCLArguments(parser):
     parser.add_argument('--rnn_size', default = 512, type = int,
                             help= 'Set the RNN size.')
 
-    parser.add_argument('--lr', default = 1e-3, type = float,
+    parser.add_argument('--lr', default = 1e-4, type = float,
                             help= 'Set the learning rate for the optimizer.')
 
     parser.add_argument('--weight_decay', default = 5e-4, type = float,

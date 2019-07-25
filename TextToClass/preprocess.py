@@ -113,12 +113,12 @@ if __name__ == '__main__':
             balanceForEachClass = {className : num_occurrencies}
             
             for (inner_className, inner_description), inner_num_occurrencies in occurrencies_to_check.items():
-                if (inner_className, inner_description) == (className, description) 
+                if (inner_className, inner_description) == (className, description) \
                         or inner_description != description:
                     continue
                 balanceForEachClass[inner_className] = inner_num_occurrencies
 
-            className, _ = max(balanceForEachClass.items(), key = operator.itemgetter(1))
+            className, _ = max(balanceForEachClass.items(), key = itemgetter(1))
             processedDescriptions.append(description)
             try:
                 occurrencies_to_write[className].append(description)
@@ -127,7 +127,6 @@ if __name__ == '__main__':
                 occurrencies_to_write[className] = [description]
 
         print(f'End processing.')
-        exit(0)
 
         ## 4. Decide strategy to eliminate duplicates
         """
