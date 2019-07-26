@@ -109,6 +109,7 @@ class Trainer:
 
 
         firstEpoch_overfit      = False
+        earlyStop               = False
 
 
         for current_epoch in range(self.num_epochs):
@@ -119,7 +120,7 @@ class Trainer:
             epoch_accuracy_cnt = {'train': 0, 'valid':0, 'test': 0}
             
 
-            if not firstEpoch_overfit:
+            if earlyStop and not firstEpoch_overfit:
                 prevEpochNetworkState   = self.network.state_dict()
                 prevEpochOptimizerState = self.optimizer.state_dict()
             
@@ -149,22 +150,24 @@ class Trainer:
                 Test: Loss={avg_test_loss:.4f}, Accuracy={avg_test_accuracy:.4f}.\n")
             
             ## Check for overfitting
-            if avg_train_accuracy > avg_valid_accuracy and avg_train_loss < avg_valid_loss:
+            if earlyStop:
+                
+                if avg_train_accuracy > avg_valid_accuracy and avg_train_loss < avg_valid_loss:
 
-                if not firstEpoch_overfit:
-                    firstEpoch_overfit = True
-                    print('Probable overfit is occurring. Next epoch weights will be loaded and learning rate will be updated.')
+                    if not firstEpoch_overfit:
+                        firstEpoch_overfit = True
+                        print('Probable overfit is occurring. Next epoch weights will be loaded and learning rate will be updated.')
 
-                else:
-                    firstEpoch_overfit = False
-                    self.network.load_state_dict(prevEpochNetworkState)
-                    self.optimizer.load_state_dict(prevEpochOptimizerState)
-                    for g in self.optimizer.param_groups:
-                        g['lr'] = g['lr']/10
-                    print('Overfit Detected. Loading back 2 epochs ago and reducing learning rate.')
-            
-            else: # Reset, second epoch overfit was not detected.
-                firstEpoch_overfit = False if firstEpoch_overfit else True
+                    else:
+                        firstEpoch_overfit = False
+                        self.network.load_state_dict(prevEpochNetworkState)
+                        self.optimizer.load_state_dict(prevEpochOptimizerState)
+                        for g in self.optimizer.param_groups:
+                            g['lr'] = g['lr']/10
+                        print('Overfit Detected. Loading back 2 epochs ago and reducing learning rate.')
+                
+                else: # Reset, second epoch overfit was not detected.
+                    firstEpoch_overfit = False if firstEpoch_overfit else True
 
             if int(current_epoch + 1) % int(self.save_interval) == 0:
                 print('Saving the state...')
