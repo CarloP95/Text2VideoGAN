@@ -181,7 +181,7 @@ if __name__ == '__main__':
                     newDataset[actionClass].append(description)
         """
         newDataset = occurrencies_to_write
-        with open('output.txt', 'w') as output:
+        with open('processed_dataset.txt', 'w') as output:
             for action, descriptions in newDataset.items():
                 for description in descriptions:
                     output.write(f'{action}\t{description}\n')
